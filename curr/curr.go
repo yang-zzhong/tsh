@@ -1,4 +1,4 @@
-package psh
+package curr
 
 import "sync"
 
