@@ -37,7 +37,7 @@ type mmmm struct {
 	total, maxC int
 }
 
-func TestPlan(t *testing.T) {
+func TestCurr(t *testing.T) {
 	should := map[mmmm]int{
 		{10, 11}:  1,
 		{10, 10}:  1,

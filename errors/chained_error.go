@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"runtime"
 	"strings"
+	"sync"
 )
 
 type ChainedError interface {
@@ -26,15 +27,34 @@ type chainedError struct {
 	inLine   int
 }
 
+var runtimeInfoEnabled bool
+var mx sync.RWMutex
+
+func init() {
+	runtimeInfoEnabled = true
+}
+
+func EnableRuntimeInfo() {
+	mx.Lock()
+	defer mx.Unlock()
+	runtimeInfoEnabled = true
+}
+
+func DisableRuntimeInfo() {
+	mx.Lock()
+	defer mx.Unlock()
+	runtimeInfoEnabled = false
+}
+
 func Ensure(err error, causedBy ChainedError) ChainedError {
 	if errors.Is(causedBy, err) {
-		return New(err, nil)
+		return New(err)
 	}
 	return causedBy.Cause(err)
 }
 
-func New(msg interface{}, causedBy ChainedError) ChainedError {
-	return newWithMsg(msg, causedBy)
+func New(msg interface{}) ChainedError {
+	return newWithMsg(msg, nil)
 }
 
 func newWithMsg(msg interface{}, e ChainedError, v ...interface{}) *chainedError {
@@ -50,27 +70,32 @@ func newWithMsg(msg interface{}, e ChainedError, v ...interface{}) *chainedError
 
 func NewChainedError(msg string, causedBy ChainedError) *chainedError {
 	e := &chainedError{msg: msg, causedBy: causedBy}
-	pc := make([]uintptr, 10)
-	n := runtime.Callers(0, pc)
-	if n == 0 {
-		return e
-	}
-	pc = pc[:n]
-	frames := runtime.CallersFrames(pc)
-	chainedErrorShowed := false
-	for {
-		frame, _ := frames.Next()
-		if strings.Index(frame.File, "chained_error.go") == -1 {
-			if chainedErrorShowed {
-				e.inFile = frame.File
-				e.inLine = frame.Line
-				e.inMethod = frame.Function
-				return e
+	if runtimeInfoEnabled {
+		mx.RLock()
+		defer mx.RUnlock()
+		pc := make([]uintptr, 6)
+		n := runtime.Callers(0, pc)
+		if n == 0 {
+			return e
+		}
+		pc = pc[:n]
+		frames := runtime.CallersFrames(pc)
+		chainedErrorShowed := false
+		for {
+			frame, _ := frames.Next()
+			if strings.Index(frame.File, "chained_error.go") == -1 {
+				if chainedErrorShowed {
+					e.inFile = frame.File
+					e.inLine = frame.Line
+					e.inMethod = frame.Function
+					return e
+				}
+			} else if !chainedErrorShowed {
+				chainedErrorShowed = true
 			}
-		} else if !chainedErrorShowed {
-			chainedErrorShowed = true
 		}
 	}
+	return e
 }
 
 func (e *chainedError) Error() string {

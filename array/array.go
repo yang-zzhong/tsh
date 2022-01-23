@@ -74,7 +74,6 @@ func SubFrom(arr1, arr2 interface{}) int {
 func Equal(arr1, arr2 interface{}) bool {
 	arr1V := reflect.ValueOf(arr1)
 	arr2V := reflect.ValueOf(arr2)
-
 	if arr1V.Type().Kind() != arr2V.Type().Kind() && arr1V.Type().Kind() != reflect.Slice {
 		return false
 	}

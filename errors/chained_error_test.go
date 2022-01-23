@@ -6,7 +6,8 @@ import (
 )
 
 func TestChainedError(t *testing.T) {
-	e := New("connection reset by peer", nil)
+	EnableRuntimeInfo()
+	e := New("connection reset by peer")
 	e1 := e.Cause("send message error")
 	e2 := e1.Cause("http post message error")
 	e3 := e2.Cause("ios report error")
@@ -30,9 +31,37 @@ func testNCE3(err ChainedError) ChainedError {
 }
 
 func TestNestedChainedError(t *testing.T) {
-	err := testNCE1(testNCE2(testNCE3(New("hello world", nil))))
+	EnableRuntimeInfo()
+	err := testNCE1(testNCE2(testNCE3(New("hello world"))))
 	em := "ERROR: \"chained error 2\" in github.com/yang-zzhong/tsh/errors.testNCE1\n\tCaused by\n\t  \"chained error 3\" in github.com/yang-zzhong/tsh/errors.testNCE2\n\tCaused by\n\t  \"chained error 4\" in github.com/yang-zzhong/tsh/errors.testNCE3\n\tCaused by\n\t  \"hello world\" in github.com/yang-zzhong/tsh/errors.TestNestedChainedError\n"
 	if em != err.String() {
 		t.Fatal("something wrong with ChainedError when nested")
+	}
+}
+
+func Benchmark_New(b *testing.B) {
+	DisableRuntimeInfo()
+	for i := 0; i < b.N; i++ {
+		New("hello world")
+	}
+}
+
+func Benchmark_WithRuntimeInfo(b *testing.B) {
+	EnableRuntimeInfo()
+	for i := 0; i < b.N; i++ {
+		New("hello world")
+	}
+}
+
+func Benchmark_NewChainedError(b *testing.B) {
+	DisableRuntimeInfo()
+	for i := 0; i < b.N; i++ {
+		NewChainedError("hello world", nil)
+	}
+}
+
+func Benchmark_normalError(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		errors.New("hello world")
 	}
 }
