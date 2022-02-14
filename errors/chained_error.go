@@ -9,6 +9,7 @@ import (
 	"sync"
 )
 
+// ChainedError a chained error definition
 type ChainedError interface {
 	CausedBy() ChainedError
 	// msg instanceof error or string
@@ -34,18 +35,24 @@ func init() {
 	runtimeInfoEnabled = true
 }
 
+// EnableRuntimeInfo if runtime info enabled, it will collect infomation about where the error occured
 func EnableRuntimeInfo() {
 	mx.Lock()
 	defer mx.Unlock()
 	runtimeInfoEnabled = true
 }
 
+// DisableRuntimeInfo disable collect runtime info for performance issue
 func DisableRuntimeInfo() {
 	mx.Lock()
 	defer mx.Unlock()
 	runtimeInfoEnabled = false
 }
 
+// Ensure make sure the error is the first arguement typed errs.ChainedError
+// if err := DoSomething(); err != nil {
+//     return errs.Ensure(err, errs.New("do something error"))
+// }
 func Ensure(err error, causedBy ChainedError) ChainedError {
 	if errors.Is(causedBy, err) {
 		return New(err)
@@ -53,6 +60,7 @@ func Ensure(err error, causedBy ChainedError) ChainedError {
 	return causedBy.Cause(err)
 }
 
+// New new a ChainedError, this func implement with reflect to make it easy to use but have performance issue
 func New(msg interface{}) ChainedError {
 	return newWithMsg(msg, nil)
 }
@@ -68,6 +76,7 @@ func newWithMsg(msg interface{}, e ChainedError, v ...interface{}) *chainedError
 	}
 }
 
+// New new a ChainedError with msg string
 func NewChainedError(msg string, causedBy ChainedError) *chainedError {
 	e := &chainedError{msg: msg, causedBy: causedBy}
 	if runtimeInfoEnabled {
@@ -98,26 +107,32 @@ func NewChainedError(msg string, causedBy ChainedError) *chainedError {
 	return e
 }
 
+// Error return the error message not the whole chained error message
 func (e *chainedError) Error() string {
 	return e.msg
 }
 
+// CausedBy give who cause the error
 func (e *chainedError) CausedBy() ChainedError {
 	return e.causedBy
 }
 
+// At get where the error occured
 func (e *chainedError) At() (file string, line int, method string) {
 	return e.inFile, e.inLine, e.inMethod
 }
 
+// Cause give which error will be caused
 func (e *chainedError) Cause(msg interface{}, v ...interface{}) ChainedError {
 	return newWithMsg(msg, e, v...)
 }
 
+// Print print the chained error detail
 func (e *chainedError) Print() {
 	fmt.Print(e.String())
 }
 
+// String stringify the whole error chain
 func (e *chainedError) String() string {
 	ret := ""
 	var t ChainedError = e
@@ -128,7 +143,11 @@ func (e *chainedError) String() string {
 			ret += "\t  "
 		}
 		_, _, inMethod := t.At()
-		ret += fmt.Sprintf("\"%s\" in %s\n", t.Error(), inMethod)
+		if inMethod != "" {
+			ret += fmt.Sprintf("\"%s\" in %s\n", t.Error(), inMethod)
+		} else {
+			ret += fmt.Sprintf("\"%s\"\n", t.Error())
+		}
 		t = t.CausedBy()
 		if t == nil {
 			break

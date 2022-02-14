@@ -28,10 +28,12 @@ func Curr(total, maxC int) int {
 	return 1
 }
 
+// Call call func parallel with max concurrence
 func Call(total, maxC int, call func(start, size int)) {
 	CurrCall(total, Curr(total, maxC), call)
 }
 
+// Linear Call func with page
 func LineCall(total, ps int, call func(start, size int)) {
 	for i := 0; i < total; i += ps {
 		size := ps

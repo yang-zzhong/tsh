@@ -5,6 +5,7 @@ import (
 	"reflect"
 )
 
+// Contain check whether arr1 contains arr2 without order
 func Contain(arr1, arr2 interface{}) bool {
 	arr1V := reflect.ValueOf(arr1)
 	arr2V := reflect.ValueOf(arr2)
@@ -43,6 +44,7 @@ func Contain(arr1, arr2 interface{}) bool {
 	}
 }
 
+// SubFrom get the first index of the arr1 contains arr2 with order, -1 will be returned if not contained
 func SubFrom(arr1, arr2 interface{}) int {
 	arr1V := reflect.ValueOf(arr1)
 	arr2V := reflect.ValueOf(arr2)
@@ -71,6 +73,7 @@ func SubFrom(arr1, arr2 interface{}) int {
 	return started
 }
 
+// Equal check whether arr1 and arr2 equal without order
 func Equal(arr1, arr2 interface{}) bool {
 	arr1V := reflect.ValueOf(arr1)
 	arr2V := reflect.ValueOf(arr2)
