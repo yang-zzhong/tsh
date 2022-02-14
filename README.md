@@ -1,4 +1,4 @@
-## Tissue fo golang - tsh
+## Tissue for golang - tsh
 
 A bunch of normal tools for golang development
 
