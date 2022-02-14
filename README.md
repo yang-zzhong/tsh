@@ -56,7 +56,7 @@ import (
     errs "git.woa.com/oliverzyang/tsh/errors"
 )
 
-func SayHello() errs.MultiErrors {
+func SayHello() errs.MultiError {
     err := errs.Multiple()
     if !Build1World() {
        err.Occurred(errors.New("build 1st world error")) 

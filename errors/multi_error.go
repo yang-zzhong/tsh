@@ -5,9 +5,9 @@ import (
 	"sync"
 )
 
-type MultiErrors interface {
+type MultiError interface {
 	error
-	Occurred(err error) MultiErrors
+	Occurred(err error) MultiError
 	AnyOccurred() bool
 }
 
@@ -16,7 +16,7 @@ type errs struct {
 	mx   sync.RWMutex
 }
 
-func (errs *errs) Occurred(err error) MultiErrors {
+func (errs *errs) Occurred(err error) MultiError {
 	errs.mx.Lock()
 	defer errs.mx.Unlock()
 	errs.errs = append(errs.errs, err)
