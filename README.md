@@ -17,7 +17,7 @@ include
 import (
     "errors"
     "fmt"
-    errs "git.woa.com/oliverzyang/tsh/errors"
+    errs "github.com/yang-zzhong/tsh/errors"
 )
 
 func LackOfBlock() bool {
@@ -53,7 +53,7 @@ func main() {
 import (
     "errors"
     "fmt"
-    errs "git.woa.com/oliverzyang/tsh/errors"
+    errs "github.com/yang-zzhong/tsh/errors"
 )
 
 func SayHello() errs.MultiError {

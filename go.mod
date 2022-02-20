@@ -1,4 +1,4 @@
-module git.woa.com/oliverzyang/tsh
+module github.com/yang-zzhong/tsh
 
 go 1.17
 
