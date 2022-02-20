@@ -11,7 +11,7 @@ include
 * some file and dir funcs
 
 
-## chained error
+## Chained error
 
 ```golang
 import (
@@ -47,7 +47,7 @@ func main() {
 }
 ```
 
-## multiple error
+## Multiple error
 
 ```golang
 import (
@@ -75,4 +75,39 @@ func main() {
         fmt.Printf("say hello error: %s\n", err.Error())
     }
 }
+```
+
+## Array
+
+```golang
+// Contain check whether arr1 contains arr2 without order
+arr1 := []int{1, 2, 3}
+arr2 := []int{1, 3}
+array.Contain(arr1, arr2) // should be true
+
+// Equal check whether arr1 and arr2 equal without order
+arr1 := []int{1,2,3}
+arr2 := []int{3,2,1}
+array.Equal(arr1, arr2) // should be true
+
+// SubFrom get the first index of the arr1 contains arr2 with order, -1 will be returned if not contained
+
+arr1 := []int{1,2,3}
+arr2 := []int{2,3}
+array.SubFrom(arr1, arr2) // should return 1
+```
+
+## concurrence
+
+```golang
+arr1 := []int{1,2,3,4,5,6,7,8,9,10}
+lock := sync.Mutex
+// use 4 goroutine to handle the times
+curr.Call(len(arr1), 4, func(start, size int) {
+    lock.Lock()
+    defer lock.Unlock()
+    for i := start; i < start - size; i++ {
+        arr1[i] *= arr1[i]
+    }
+})
 ```
